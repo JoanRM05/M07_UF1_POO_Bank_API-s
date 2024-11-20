@@ -12,11 +12,12 @@ use ComBank\Exceptions\InvalidOverdraftFundsException;
 use ComBank\Exceptions\FailedTransactionException;
 use ComBank\Exceptions\ZeroAmountException;
 use ComBank\Support\Traits\AmountValidationTrait;
+use ComBank\Support\Traits\ApiTrait\FraudApi;
 use ComBank\Transactions\Contracts\BankTransactionInterface;
 
 class WithdrawTransaction extends BaseTransaction implements BankTransactionInterface
 {
-    
+    use FraudApi;    
     function __construct(float $amount){
 
         parent::validateAmount($amount);
@@ -32,8 +33,13 @@ class WithdrawTransaction extends BaseTransaction implements BankTransactionInte
             if ($BankAccount->getOverdraft()->getOverdraftFundsAmount() == 0){
                 throw new InvalidOverdraftFundsException("Insufficient balance to complete the withdrawal.");
             }
+            
             throw new FailedTransactionException("Withdrawal exceeds overdraft limit.");
         } 
+
+        if($this->detectFraud($this)){
+            throw new \Exception("Fraud Detected. CAN NOT WITHDRAW this quantity.");
+        }
 
         return $newBalance;
         

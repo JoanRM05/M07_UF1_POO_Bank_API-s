@@ -12,6 +12,13 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 /* [@tmp methods for testing only...]*/
 
+function pe($mixed)
+{
+    echo "<br> <b style='color:red'>";
+    echo $mixed;
+    echo "</b><br>";
+}
+
 function pl($mixed)
 {
     echo "<br>";

@@ -9,10 +9,12 @@
 
 use ComBank\Bank\Contracts\BackAccountInterface;
 use ComBank\Exceptions\ZeroAmountException;
+use ComBank\Support\Traits\ApiTrait\FraudApi;
 use ComBank\Transactions\Contracts\BankTransactionInterface;
 
 class DepositTransaction extends BaseTransaction implements BankTransactionInterface
 {
+    use FraudApi;  
     function __construct(float $amount){
         
         parent::validateAmount($amount);
@@ -25,6 +27,10 @@ class DepositTransaction extends BaseTransaction implements BankTransactionInter
 
         $newBalance = $BankAccount->getBalance() + $this->getAmount();
         
+        if($this->detectFraud($this)){
+            throw new \Exception("Fraud Detected. CAN NOT DEPOSIT this quantity");
+        } 
+
         return $newBalance;
 
     }

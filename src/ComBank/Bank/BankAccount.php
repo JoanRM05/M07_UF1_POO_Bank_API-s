@@ -15,22 +15,28 @@ use ComBank\Bank\Contracts\BackAccountInterface;
 use ComBank\Exceptions\FailedTransactionException;
 use ComBank\Exceptions\InvalidOverdraftFundsException;
 use ComBank\OverdraftStrategy\Contracts\OverdraftInterface;
+use ComBank\Person\person;
 use ComBank\Support\Traits\AmountValidationTrait;
+use ComBank\Support\Traits\ApiTrait\ConversionApi;
 use ComBank\Transactions\Contracts\BankTransactionInterface;
 use Error;
 
 class BankAccount implements BackAccountInterface
 {   
-    use AmountValidationTrait;
-    private $balance;
-    private $status;
-    private OverdraftInterface $overdraft;
+    use AmountValidationTrait, ConversionApi;
+
+    protected person $holder_person;
+    protected $balance;
+    protected $status;
+    protected OverdraftInterface $overdraft;
+    protected $currency;
 
 
-    public function __construct(float $balance = 0.0){
+    public function __construct(float $balance = 0.0, string $currency = "EUR"){
         
         $this->validateAmount($balance);
         $this->balance = $balance;
+        $this->currency  = $currency;
         $this->status = true;
         $this->overdraft = new NoOverdraft(); 
 
@@ -102,5 +108,17 @@ class BankAccount implements BackAccountInterface
     public function setBalance(float $balance): void
     {
         $this->balance = $balance; 
+    }
+
+    
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    
+    public function setPerson($Person)
+    {
+        $this->holder_person = $Person;
     }
 }
